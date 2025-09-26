@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import {
@@ -11,8 +13,46 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 
 export default function Home() {
+
+  const [userName, setUserName] = useState("");
+  const [password, setPassword] = useState("");
+  const route = useRouter();
+
+  const handleLogin = async () => {
+    try {
+      const response = await fetch("api/auth", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username: userName,
+          password: password
+        })
+      })
+      if (!response.ok) {
+        alert("Login failed. Please check your credentials and try again.");
+        return;
+      }
+
+      const isAuthenticated = await response.json();
+
+      if (!isAuthenticated) {
+        return;
+      }
+
+      route.push("/dashboard");
+
+    } catch(error) {
+      alert("There was an error logging in. Please try again.");
+      return;
+    }
+  }
+
   return (
     <div className="h-screen flex items-center justify-center">
       <Card className="w-full max-w-sm">
@@ -38,6 +78,8 @@ export default function Home() {
                   type="email"
                   placeholder="m@example.com"
                   required
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
                 />
               </div>
               <div className="grid gap-2">
@@ -50,13 +92,13 @@ export default function Home() {
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" required />
+                <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
               </div>
             </div>
           </form>
         </CardContent>
         <CardFooter className="flex-col gap-2">
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full" onClick={handleLogin}>
             Login
           </Button>
           <Button variant="outline" className="w-full">

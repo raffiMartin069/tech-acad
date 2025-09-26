@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Button } from "@/components/ui/button";
+import { LogOut, School } from "lucide-react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,6 +29,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <nav className="w-full bg-black border-b p-4 mb-8">
+          <div className="container mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <p className="text-white font-semibold">Tech Academy</p>
+              <School className="text-white" />
+            </div>
+            {/* <Button className="mt-2" variant="secondary">Log out <LogOut /></Button> */}
+          </div>
+        </nav>
         {children}
       </body>
     </html>

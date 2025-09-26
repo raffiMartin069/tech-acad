@@ -1,53 +1,46 @@
-import { AppSidebar } from "@/components/app-sidebar"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Separator } from "@/components/ui/separator"
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar"
+import React from 'react'
+import { columns, StudentData } from '@/components/ui/data-table/columns'
+import { DataTable } from '@/components/ui/data-table/data-table'
+import { Ballet } from 'next/font/google';
 
-export default function Page() {
-  return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator
-            orientation="vertical"
-            className="mr-2 data-[orientation=vertical]:h-4"
-          />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="#">
-                  Building Your Application
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </header>
-        <div className="flex flex-1 flex-col gap-4 p-4">
-          <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-          </div>
-          <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
-  )
+async function getData(): Promise<StudentData[]> {
+    try {
+        const res = await fetch('http://localhost:3000/api/student/all', { cache: 'no-store' });
+        if (!res.ok) {
+            throw new Error('Failed to fetch data');
+        }
+        const data = await res.json();
+        const students = data.map((student: any) => ({
+            schoolId: student.id_number,
+            firstName: student.first_name,
+            middleName: student.middle_name,
+            lastName: student.last_name,
+            fullName: `${student.first_name} ${student.middle_name ? student.middle_name + ' ' : ''}${student.last_name}`,
+            dateOfBirth: student.date_of_birth,
+            gender: student.gender,
+            phone: student.phone,
+            address: student.address,
+            department: student.department,
+            level: student.year_level,
+            status: student.status,
+            email: student.email,
+            balance: student.balance.toLocaleString('en-PH', { style: 'currency', currency: 'PHP' })
+        }));
+        return students;
+    } catch (error) {
+        console.error('Error fetching student data:', error);
+        return [];
+    }
+
 }
+
+async function Page() {
+    const data = await getData()
+    return (
+        <div className="container mx-auto py-10">
+            <DataTable columns={columns} data={data} />
+        </div>
+    )
+}
+
+export default Page
